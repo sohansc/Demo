@@ -1,0 +1,33 @@
+---
+- hosts: all
+  sudo: yes
+  tasks:
+    - name: install wget
+      apt: name=wget update_cache=yes state=latest
+    - name: get docker
+      shell: wget -qO- https://get.docker.com/ | sh
+      register: docker installed
+      ignore_errors: True
+    - name: privilage to ubuntu user
+      shell: usermod -aG docker ubuntu
+      register: privilaged ubuntu
+      ignore_errors: True
+    - name: install python-pip
+      apt: name=python-pip update_cache=yes state=latest
+    - name: install docker compose
+      shell: pip install docker-compose
+      register: installed docker compose
+      ignore_errors: True
+
+
+
+    - name: creating directory
+      file: path=~/wp-docker state=directory
+    - name: copying docker compose file 
+      copy: src=wordpress.yml dest=~/wp-docker/docker-compose.yml mode=0644
+
+    - name: docker composing
+      shell: docker-compose up -d --no-recreate
+      args:
+        chdir: /root/wp-docker/
+      register: docker up

@@ -1,0 +1,13 @@
+containername:
+  image: gravityrail/wordpress
+  volumes:
+    - src:/var/www/html
+  links:
+    - db:mysql
+  ports:
+    - 80:80
+
+db:
+  image: mariadb
+  environment:
+    MYSQL_ROOT_PASSWORD: password
