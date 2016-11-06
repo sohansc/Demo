@@ -20,9 +20,13 @@ tags {
         Name = "${var.app}-${count.index}"
         Env = "${var.env}"
 }
+provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get update -y"
+    ]
 
 }
-
+}
 
 
 resource "aws_security_group" "default" {
@@ -80,20 +84,43 @@ resource "aws_elb" "example" {
 
   health_check {
     healthy_threshold = 2
-    unhealthy_threshold = 2
-    timeout = 3
+    unhealthy_threshold = 5
+    timeout = 15
     target = "HTTP:80/"
-    interval = 30
+    interval = 45
   }
-
+cross_zone_load_balancing = true
+    idle_timeout = 400
+    connection_draining = true
+    connection_draining_timeout = 400
   instances = ["${aws_instance.example.*.id}"]
-security_groups = ["${aws_security_group.default.id}"]
+security_groups = ["${aws_security_group.elb.id}"]
 tags {
         Env = "${var.env}"
 }
 
 }
 
+resource "aws_security_group" "elb" {
+  name = "elb_sg"
+  description = "Used in the terraform"
+
+  # HTTP access from anywhere
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # outbound internet access
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 
 output "aws_instances_ip" {
  value = "${split(",",join(",", aws_instance.example.*.public_ip))}" 
@@ -101,3 +128,4 @@ output "aws_instances_ip" {
 output "elb_dns" {
 value = "${aws_elb.example.dns_name}"
 }
+
