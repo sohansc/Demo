@@ -106,7 +106,7 @@ else
 fi
 
 
-chomd 775 ./terraform/hosts.txt
+chmod 775 ./terraform/hosts.txt
 
 ansible-playbook --private-key $ANSIBLE_SSH_PRIVATE_KEY_FILE -u ubuntu -i ./terraform/hosts.txt ./ansible/docker.yml
 
