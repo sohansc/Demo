@@ -63,11 +63,11 @@ resource "aws_instance" "example" {
   instance_type = "${var.ec2_size}"
 
 connection {
-    # The default username for our AMI
+
     type = "ssh"
     user = "ubuntu"
     private_key = "${file(var.aws_instance_key_pem_file_path)}"
-    # The connection will use the local SSH agent for authentication.
+
   }
 key_name = "${var.aws_instace_key_pem_file_name}"
 security_groups = ["${aws_security_group.default.name}"]
@@ -115,7 +115,7 @@ resource "aws_security_group" "default" {
 
 
 
-	#access from load balancer port
+	#access from load blancer and wordpress app port
     ingress {
         from_port = 8000
         to_port = 8000
@@ -123,7 +123,7 @@ resource "aws_security_group" "default" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 
-  # outbound internet access
+  #internet access
     egress {
         from_port = 0
         to_port = 0
